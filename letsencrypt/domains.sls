@@ -3,7 +3,6 @@
 
 {% from "letsencrypt/map.jinja" import letsencrypt with context %}
 
-
 /usr/local/bin/check_letsencrypt_cert.sh:
   file.managed:
     - mode: 755
@@ -28,7 +27,7 @@
   ).iteritems()
 %}
 
-create-initial-cert-{{ setname }}-{{ domainlist | join('+') }}:
+create-initial-cert-{{ setname }}:
   cmd.run:
     - unless: /usr/local/bin/check_letsencrypt_cert.sh {{ domainlist|join(' ') }}
     - name: {{
@@ -39,7 +38,7 @@ create-initial-cert-{{ setname }}-{{ domainlist | join('+') }}:
       - file: letsencrypt-config
       - file: /usr/local/bin/check_letsencrypt_cert.sh
 
-letsencrypt-crontab-{{ setname }}-{{ domainlist[0] }}:
+letsencrypt-crontab-{{ setname }}:
   cron.present:
     - name: /usr/local/bin/check_letsencrypt_cert.sh {{ domainlist|join(' ') }} > /dev/null ||{{
           letsencrypt.cli_install_dir
