@@ -21,18 +21,12 @@
         [ "$REMAINING" -gt "30" ] || exit 1
         echo Domains $@ are in cert and cert is valid for $REMAINING days
 
-{%
-  for setname, domainlist in salt['pillar.get'](
-    'letsencrypt:domainsets'
-  ).iteritems()
-%}
+{% for setname, domainlist in salt['pillar.get']('letsencrypt:domainsets').iteritems() %}
 
 create-initial-cert-{{ setname }}:
   cmd.run:
     - unless: /usr/local/bin/check_letsencrypt_cert.sh {{ domainlist|join(' ') }}
-    - name: {{
-          letsencrypt.cli_install_dir
-        }}/letsencrypt-auto -d {{ domainlist|join(' -d ') }} certonly
+    - name: {{ letsencrypt.cli_install_dir }}/letsencrypt-auto -d {{ domainlist|join(' -d ') }} certonly
     - cwd: {{ letsencrypt.cli_install_dir }}
     - require:
       - file: letsencrypt-config
@@ -47,8 +41,8 @@ letsencrypt-crontab-{{ setname }}:
     - minute: random
     - hour: random
     - dayweek: '*'
-    - identifier: letsencrypt-{{ setname }}-{{ domainlist[0] }}
+    - identifier: letsencrypt-{{ setname }}
     - require:
-      - cmd: create-initial-cert-{{ setname }}-{{ domainlist | join('+') }}
+      - cmd: create-initial-cert-{{ setname }}
 
 {% endfor %}
