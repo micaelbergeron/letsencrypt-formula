@@ -34,13 +34,8 @@ create-initial-cert-{{ setname }}:
 
 letsencrypt-crontab-{{ setname }}:
   cron.present:
-    - name: /usr/local/bin/check_letsencrypt_cert.sh {{ domainlist|join(' ') }} > /dev/null ||{{
-          letsencrypt.cli_install_dir
-        }}/letsencrypt-auto -d {{ domainlist|join(' -d ') }} certonly
-    - month: '*'
-    - minute: random
-    - hour: random
-    - dayweek: '*'
+    - name: {{ letsencrypt.cli_install_dir }}/letsencrypt-auto -d {{ domainlist|join(' -d ') }} certonly; nginx -s reload
+    - special: '@weekly'
     - identifier: letsencrypt-{{ setname }}
     - require:
       - cmd: create-initial-cert-{{ setname }}
